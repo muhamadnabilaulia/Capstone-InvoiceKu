@@ -33,7 +33,7 @@ A simple and professional invoice management web app built for the IBM x Hacktiv
 
 1. Clone this repository:
    ```
-   git clone https://github.com/muhamadnabilaulia/Capstone---IBMxHacktive---AI-for-Programming.git
+   git clone https://github.com/muhamadnabilaulia/Capstone---IBMxHacktive---AI-for-Programming.git](https://github.com/muhamadnabilaulia/Capstone-InvoiceKu.git
    ```
 2. Open `index.html` in your browser.
 
