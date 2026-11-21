@@ -167,12 +167,86 @@
 }
 
 /* ----------------------------------------------------------
-   5. Nav Button Aktif
+   5. Navbar — Full-width Frosted Glass
    ---------------------------------------------------------- */
 
+/**
+ * .navbar-bar — kondisi awal (at-top):
+ *   • Background indigo sangat tipis (~12 %)
+ *   • backdrop-filter blur ringan
+ *   • Border bawah indigo transparan
+ *   • Tanpa shadow
+ *   • Teks diatur via .navbar-logo-text dan .nav-btn (di bawah)
+ *
+ * Semua properti yang akan berubah saat scroll didaftarkan di
+ * transition agar animasinya mulus (250 ms).
+ */
+.navbar-bar {
+  /* Background indigo ~12 % — terasa menyatu dengan latar terang */
+  background-color: rgba(238, 242, 255, 0.12);   /* indigo-50 / 12 % */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.14);  /* indigo / 14 % */
+  box-shadow: none;
+
+  /* Daftarkan semua properti yang bertransisi */
+  transition:
+    background-color  0.25s ease,
+    backdrop-filter   0.25s ease,
+    -webkit-backdrop-filter 0.25s ease,
+    box-shadow        0.25s ease,
+    border-color      0.25s ease;
+}
+
+/**
+ * Fallback untuk browser yang tidak mendukung backdrop-filter
+ * (dicek via @supports): background lebih solid agar teks tetap terbaca.
+ */
+@supports not (backdrop-filter: blur(1px)) {
+  .navbar-bar         { background-color: rgba(238, 242, 255, 0.95); }
+  .navbar-bar.is-scrolled { background-color: rgba(255, 255, 255, 0.98); }
+}
+
+/**
+ * .navbar-bar.is-scrolled — kondisi scroll > 10 px (class diset via JS):
+ *   • Background putih ~78 %
+ *   • Blur diperkuat
+ *   • Soft shadow tipis
+ *   • Border bawah lebih memudar (tidak perlu karena shadow sudah cukup)
+ */
+.navbar-bar.is-scrolled {
+  background-color: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 1px 12px rgba(99, 102, 241, 0.10), 0 1px 3px rgba(0, 0, 0, 0.06);
+  border-bottom-color: rgba(99, 102, 241, 0.06);
+}
+
+/**
+ * Teks logo — indigo gelap di kedua kondisi (kontras ≥ 4.5:1 pada bg terang).
+ */
+.navbar-logo-text {
+  color: #3730a3;   /* indigo-800 */
+  transition: color 0.25s ease;
+}
+
+/**
+ * Nav button: warna default + hover + active.
+ * Dirancang agar terbaca di bg indigo tipis (at-top) maupun bg putih (scrolled).
+ */
+.nav-btn {
+  color: #4338ca;         /* indigo-700 — kontras ≥ 4.5:1 pada bg terang */
+}
+.nav-btn:hover {
+  color: #312e81;         /* indigo-900 */
+  background-color: rgba(99, 102, 241, 0.08);
+}
+
+/* Item aktif: indigo muda — tampak jelas di kedua kondisi navbar */
 .nav-btn.active {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  color: #4338ca;         /* indigo-700 */
+  background-color: rgba(99, 102, 241, 0.12);
+  font-weight: 600;
 }
 
 /* ----------------------------------------------------------
@@ -369,5 +443,101 @@
   @page {
     size: A4;
     margin: 1.5cm;
+  }
+}
+
+/* ----------------------------------------------------------
+   10. Skeleton Loading
+   ---------------------------------------------------------- */
+
+/**
+ * Gradien shimmer bergerak dari kiri ke kanan.
+ * Durasi 1.4 detik, ease-in-out agar terasa halus.
+ */
+@keyframes skeletonShimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+/**
+ * Blok skeleton generik — digunakan untuk bar teks & angka.
+ * Lebar diatur oleh kelas utilitas (w-24, w-32, dsb) atau inline style.
+ */
+.skeleton-block {
+  display: inline-block;
+  height: 1em;
+  border-radius: 0.375rem;
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 25%,
+    #f1f5f9 50%,
+    #e2e8f0 75%
+  );
+  background-size: 800px 100%;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+  vertical-align: middle;
+}
+
+/**
+ * Variasi untuk angka besar (stat cards) — tinggi lebih besar.
+ */
+.skeleton-block-lg {
+  height: 2.25rem;    /* setara text-3xl */
+  border-radius: 0.5rem;
+}
+
+/**
+ * Variasi untuk teks medium (judul, nominal).
+ */
+.skeleton-block-md {
+  height: 1.25rem;
+  border-radius: 0.375rem;
+}
+
+/**
+ * Skeleton card penuh — digunakan untuk baris invoice list dan recent rows.
+ */
+.skeleton-card {
+  background-color: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 0.75rem;   /* rounded-xl */
+  padding: 1.25rem;
+}
+
+/**
+ * Efek shimmer pada elemen yang sudah ada di DOM (stat numbers, revenue).
+ * Menggantikan teks dengan pseudo-element overlay — tanpa layout shift.
+ */
+.skeleton-pulse {
+  position: relative;
+  color: transparent !important;   /* sembunyikan teks asli */
+  pointer-events: none;
+  user-select: none;
+}
+
+.skeleton-pulse::after {
+  content: '';
+  position: absolute;
+  inset: 2px 0;
+  border-radius: 0.375rem;
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 25%,
+    #f1f5f9 50%,
+    #e2e8f0 75%
+  );
+  background-size: 800px 100%;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+}
+
+/**
+ * Hentikan semua animasi skeleton jika pengguna memilih
+ * prefers-reduced-motion (aksesibilitas).
+ */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block,
+  .skeleton-pulse::after {
+    animation: none;
+    background: #e2e8f0;
   }
 }

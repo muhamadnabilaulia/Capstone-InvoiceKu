@@ -165,11 +165,112 @@ function generateInvoiceNumber() {
 }
 
 /* ----------------------------------------------------------
-   6. NAVIGASI HALAMAN (SPA)
+   6. SKELETON LOADING
+   ---------------------------------------------------------- */
+
+/** ID elemen yang mendapat class skeleton-pulse saat loading dashboard. */
+const DASH_PULSE_IDS = [
+  'stat-total', 'stat-paid', 'stat-overdue', 'stat-unpaid',
+  'stat-revenue', 'stat-outstanding'
+];
+
+/**
+ * Tampilkan skeleton di dashboard:
+ * - skeleton-pulse pada angka statistik yang sudah ada di DOM
+ * - baris skeleton di #dashboard-recent
+ * Section ditandai aria-busy="true".
+ */
+function renderSkeletonDashboard() {
+  const section = document.getElementById('page-dashboard');
+  if (section) section.setAttribute('aria-busy', 'true');
+
+  // Shimmer overlay pada elemen angka stat yang sudah ada
+  DASH_PULSE_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('skeleton-pulse');
+  });
+
+  // Skeleton baris untuk "Invoice Terbaru"
+  const container = document.getElementById('dashboard-recent');
+  if (!container) return;
+  container.innerHTML = Array.from({ length: 5 }).map((_, i) => `
+    <div class="flex items-center justify-between py-3 border-b border-slate-50 last:border-0 px-2"
+         aria-hidden="true">
+      <div class="space-y-1.5">
+        <span class="skeleton-block skeleton-block-md" style="width:${90 + i * 8}px"></span>
+        <br/>
+        <span class="skeleton-block" style="width:${60 + i * 6}px"></span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="skeleton-block skeleton-block-md" style="width:88px"></span>
+        <span class="skeleton-block" style="width:52px; height:1.4rem; border-radius:9999px"></span>
+      </div>
+    </div>`).join('');
+}
+
+/**
+ * Tampilkan skeleton di halaman daftar invoice:
+ * - 4 card skeleton di #invoice-list
+ * Section ditandai aria-busy="true".
+ */
+function renderSkeletonList() {
+  const section = document.getElementById('page-invoices');
+  if (section) section.setAttribute('aria-busy', 'true');
+
+  const container = document.getElementById('invoice-list');
+  if (!container) return;
+  container.innerHTML = Array.from({ length: 4 }).map((_, i) => `
+    <div class="skeleton-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+         aria-hidden="true">
+      <div class="flex-1 space-y-2">
+        <div class="flex items-center gap-2">
+          <span class="skeleton-block skeleton-block-md" style="width:110px"></span>
+          <span class="skeleton-block" style="width:52px; height:1.3rem; border-radius:9999px"></span>
+        </div>
+        <span class="skeleton-block skeleton-block-md" style="width:${140 + i * 20}px"></span>
+        <span class="skeleton-block" style="width:${100 + i * 15}px"></span>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <div class="text-right space-y-1">
+          <span class="skeleton-block" style="width:48px"></span>
+          <br/>
+          <span class="skeleton-block skeleton-block-md" style="width:96px"></span>
+        </div>
+        <div class="flex gap-1">
+          <span class="skeleton-block" style="width:28px; height:28px; border-radius:0.5rem"></span>
+          <span class="skeleton-block" style="width:28px; height:28px; border-radius:0.5rem"></span>
+          <span class="skeleton-block" style="width:28px; height:28px; border-radius:0.5rem"></span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/**
+ * Hapus semua skeleton dari halaman yang diberikan.
+ * skeleton-pulse dicopot dari elemen stat; aria-busy direset.
+ * @param {'dashboard'|'invoices'} pageName
+ */
+function hideSkeleton(pageName) {
+  const section = document.getElementById(`page-${pageName}`);
+  if (section) section.removeAttribute('aria-busy');
+
+  if (pageName === 'dashboard') {
+    DASH_PULSE_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('skeleton-pulse');
+    });
+    // dashboard-recent di-overwrite langsung oleh renderDashboard()
+  }
+  // invoice-list di-overwrite langsung oleh renderList()
+}
+
+/* ----------------------------------------------------------
+   7. NAVIGASI HALAMAN (SPA)
    ---------------------------------------------------------- */
 
 /**
  * Tampilkan halaman tertentu dan sembunyikan yang lain.
+ * Menampilkan skeleton sebentar lalu mengganti dengan konten asli.
  * @param {'dashboard'|'invoices'} pageName
  */
 function showPage(pageName) {
@@ -188,22 +289,27 @@ function showPage(pageName) {
     setTimeout(() => target.classList.remove("animate-card-enter"), 300);
   }
 
-  // Update state aktif nav button (desktop & mobile)
+  // Update state aktif nav button
   document
     .querySelectorAll(".nav-btn")
     .forEach((btn) => btn.classList.remove("active"));
   const desktopBtn = document.getElementById(`nav-${pageName}`);
   const mobileBtn = document.getElementById(`nav-${pageName}-m`);
   if (desktopBtn) desktopBtn.classList.add("active");
-  if (mobileBtn) mobileBtn.classList.add("active");
+  if (mobileBtn)  mobileBtn.classList.add("active");
 
-  // Render konten halaman
-  if (pageName === "dashboard") renderDashboard();
-  if (pageName === "invoices") renderList();
+  // Tampilkan skeleton, lalu render konten asli setelah 450ms
+  if (pageName === 'dashboard') {
+    renderSkeletonDashboard();
+    setTimeout(() => { hideSkeleton('dashboard'); renderDashboard(); }, 450);
+  } else if (pageName === 'invoices') {
+    renderSkeletonList();
+    setTimeout(() => { hideSkeleton('invoices'); renderList(); }, 450);
+  }
 }
 
 /* ----------------------------------------------------------
-   7. DASHBOARD — RENDER
+   8. DASHBOARD — RENDER
    ---------------------------------------------------------- */
 
 /**
@@ -269,7 +375,7 @@ function renderDashboard() {
 }
 
 /* ----------------------------------------------------------
-   8. INVOICE LIST — RENDER
+   9. INVOICE LIST — RENDER
    ---------------------------------------------------------- */
 
 /**
@@ -1241,6 +1347,19 @@ function initApp() {
   loadData();
   checkOverdueStatus();
   showPage("dashboard");
+
+  // Scroll listener: ubah tampilan navbar berdasarkan posisi scroll.
+  // is-scrolled ditambah/dihapus pada .navbar-bar; passive:true agar
+  // tidak memblokir thread rendering.
+  const navbarEl = document.querySelector('.navbar-bar');
+  if (navbarEl) {
+    const updateNavbar = () => {
+      navbarEl.classList.toggle('is-scrolled', window.scrollY > 10);
+    };
+    // Jalankan sekali saat halaman dimuat (menangani reload di tengah halaman)
+    updateNavbar();
+    window.addEventListener('scroll', updateNavbar, { passive: true });
+  }
 }
 
 // Jalankan saat DOM siap
