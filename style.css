@@ -1,0 +1,373 @@
+/* ============================================================
+   InvoiceKu — style.css
+   Berisi: Utility kelas kustom, animasi, dan gaya cetak (print)
+   Tailwind CSS menangani sebagian besar styling.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   1. Utility Classes (digunakan bersama Tailwind via HTML)
+   ---------------------------------------------------------- */
+
+/* Label form yang konsisten */
+.form-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b; /* slate-500 */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+/* Input / select / textarea yang konsisten */
+.form-input {
+  width: 100%;
+  border: 1px solid #e2e8f0; /* slate-200 */
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #1e293b; /* slate-800 */
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  background-color: #ffffff;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: #818cf8; /* indigo-400 */
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.form-input.error {
+  border-color: #ef4444; /* red-500 */
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* Pesan error form */
+.form-error {
+  font-size: 0.75rem;
+  color: #ef4444; /* red-500 */
+  margin-top: 0.25rem;
+}
+
+/* ----------------------------------------------------------
+   2. Animasi Kustom
+   ---------------------------------------------------------- */
+
+/* Fade in dari bawah – untuk modal panel */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Fade in – untuk toast notifikasi */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out both;
+}
+
+/* Fade out – untuk toast sebelum hilang */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.3s ease-in forwards;
+}
+
+/* Animasi muncul untuk card & item daftar */
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-card-enter {
+  animation: cardEnter 0.2s ease-out both;
+}
+
+/* ----------------------------------------------------------
+   3. Badge Status
+   ---------------------------------------------------------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.badge-draft {
+  background-color: #e2e8f0;
+  color: #475569;
+}
+.badge-terkirim {
+  background-color: #e0e7ff;
+  color: #4338ca;
+}
+.badge-lunas {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+.badge-jatuh-tempo {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* ----------------------------------------------------------
+   4. Hover Card Invoice List
+   ---------------------------------------------------------- */
+
+.invoice-card {
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.invoice-card:hover {
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.12);
+  transform: translateY(-1px);
+}
+
+/* ----------------------------------------------------------
+   5. Nav Button Aktif
+   ---------------------------------------------------------- */
+
+.nav-btn.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+/* ----------------------------------------------------------
+   6. Empty State
+   ---------------------------------------------------------- */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #94a3b8; /* slate-400 */
+}
+
+.empty-state svg {
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* ----------------------------------------------------------
+   7. Scrollbar kustom (opsional, Webkit only)
+   ---------------------------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ----------------------------------------------------------
+   8. Item Baris — Grid Layout & Spinner
+   ---------------------------------------------------------- */
+
+/**
+ * Grid tetap untuk baris item invoice (desktop).
+ * Kolom: Deskripsi (flex-1) | Qty (60px) | Harga Satuan (150px) | Subtotal (110px) | Hapus (36px)
+ */
+.item-row-grid {
+  display: grid;
+  grid-template-columns: 1fr 60px 150px 110px 36px;
+  gap: 0.5rem;
+  align-items: center; /* vertikal tengah semua kolom */
+}
+
+/* Sembunyikan spinner (panah atas/bawah) pada input number di baris item
+   dan pada input diskon/PPN di panel ringkasan */
+#line-items-container input[type="number"]::-webkit-outer-spin-button,
+#line-items-container input[type="number"]::-webkit-inner-spin-button,
+#form-discount::-webkit-outer-spin-button,
+#form-discount::-webkit-inner-spin-button,
+#form-tax::-webkit-outer-spin-button,
+#form-tax::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+#line-items-container input[type="number"],
+#form-discount,
+#form-tax {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* ---- Desktop (sm ke atas) ---- */
+@media (min-width: 640px) {
+  /* Wrapper card menjadi transparan terhadap grid: anak-anaknya langsung jadi grid cell */
+  .item-card-mobile {
+    display: contents;
+  }
+  /* Sembunyikan semua label mobile — tidak masuk grid */
+  .item-mobile-label,
+  .item-subtotal-label {
+    display: none;
+  }
+  /* Subtotal: rata kanan, fill seluruh sel */
+  .item-subtotal-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+}
+
+/* ---- Mobile (di bawah sm) ---- */
+@media (max-width: 639px) {
+  /* Grid tidak aktif di mobile — semua item stack secara vertikal */
+  .item-row-grid {
+    display: block;
+  }
+
+  /* Setiap wrapper kolom tampil sebagai card */
+  .item-card-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Label di atas setiap field */
+  .item-mobile-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Baris bawah card: subtotal kiri, tombol hapus kanan */
+  .item-subtotal-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.25rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  /* Label "Subtotal" di mobile */
+  .item-subtotal-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Kolom 5 (tombol hapus desktop) selalu hidden di mobile — tombol ada di item-subtotal-wrap */
+  .item-row-grid > div:last-child {
+    display: none !important;
+  }
+
+  /* Pembungkus seluruh baris item jadi card di mobile */
+  #line-items-container > div[id^="item-"] {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.875rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* ----------------------------------------------------------
+   9. Print Styles — @media print
+   Menyembunyikan elemen UI dan menampilkan invoice bersih
+   ---------------------------------------------------------- */
+
+@media print {
+  /* Sembunyikan semua kecuali area cetak */
+  body > * {
+    display: none !important;
+  }
+
+  /* Tampilkan hanya modal-view */
+  #modal-view {
+    display: block !important;
+  }
+  #modal-view > div:first-child {
+    display: none !important;
+  } /* sembunyikan backdrop */
+
+  #invoice-print-area {
+    display: block !important;
+    position: static !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    animation: none !important;
+  }
+
+  /* Sembunyikan tombol aksi di dalam print area */
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Pastikan warna tercetak dengan benar */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
+}
